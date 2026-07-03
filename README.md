@@ -1,5 +1,7 @@
 # 🏆 Smart Office Monitor (Techathon-IUT)
 
+**Live Demo:** [https://smart-office-monitor.onrender.com](https://smart-office-monitor.onrender.com)
+
 Real-time office device monitoring system with a web dashboard and Discord bot. Tracks 18 devices (fans & lights) across 3 rooms with live power analytics, alerts, and conversational AI.
 
 ![Architecture](diagrams/system-diagram.png)
@@ -74,6 +76,35 @@ Database/In-Memory Device Store (single source of truth)
 | **Discord** | discord.js v14 |
 | **AI/LLM** | Groq API (Llama 3.3 70B) |
 | **Deployment** | Render.com |
+
+---
+
+## 🤖 Setting up the Discord Bot
+
+Follow these steps to get your `DISCORD_TOKEN` and `ALERT_CHANNEL_ID`:
+
+1. **Create an Application:**
+   - Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+   - Click the **"New Application"** button in the top right.
+   - Give it a name (e.g., "Smart Office Monitor") and agree to the Terms of Service. Click **Create**.
+
+2. **Get the Bot Token:**
+   - On the left sidebar, click **"Bot"**.
+   - Under the Bot section, click **"Reset Token"** (and confirm "Yes, do it!").
+   - Copy the generated token. **This is your `DISCORD_TOKEN`.** Paste it into your `.env` file.
+   - *Important:* Scroll down to **"Privileged Gateway Intents"** and toggle ON **"Message Content Intent"**. Save changes.
+
+3. **Invite the Bot to your Server:**
+   - On the left sidebar, click **"OAuth2"**, then **"URL Generator"**.
+   - Under **Scopes**, check the `bot` box.
+   - Under **Bot Permissions**, check `Send Messages`, `View Channels`, and `Read Message History`.
+   - Copy the generated URL at the bottom and paste it into a new browser tab.
+   - Select your Discord server and click **Authorize**.
+
+4. **Get the Channel ID:**
+   - In your Discord app, open User Settings (gear icon) > **Advanced** > Toggle **"Developer Mode"** ON.
+   - Go to your server, right-click the text channel where you want alerts to be sent, and click **"Copy Channel ID"**.
+   - Paste this ID into your `.env` file as `ALERT_CHANNEL_ID`.
 
 ---
 

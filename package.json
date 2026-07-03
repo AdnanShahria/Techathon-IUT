@@ -10,7 +10,7 @@
     "dev:frontend": "cd frontend && npx vite --host",
     "build": "cd frontend && npm run build",
     "start": "node backend/server.js",
-    "setup": "npm install && cd backend && npm install && cd ../frontend && npm install"
+    "postinstall": "cd backend && npm install && cd ../frontend && npm install --include=dev"
   },
   "dependencies": {
     "concurrently": "^9.1.2"
