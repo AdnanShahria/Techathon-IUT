@@ -58,7 +58,11 @@ async function startBot() {
   try {
     await client.login(env.DISCORD_TOKEN);
   } catch (err) {
-    console.error('❌ Discord bot login failed:', err.message);
+    if (err.message.includes('disallowed intents')) {
+      console.error('❌ Discord bot login failed: You must enable the "Message Content Intent" for your bot in the Discord Developer Portal.');
+    } else {
+      console.error('❌ Discord bot login failed:', err.message);
+    }
   }
 }
 
