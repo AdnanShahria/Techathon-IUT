@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: smart-office-monitor
+    runtime: node
+    buildCommand: npm install && cd backend && npm install && cd ../frontend && npm install && cd .. && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: ALERT_CHANNEL_ID
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: IMGBB_API_KEY
+        sync: false
