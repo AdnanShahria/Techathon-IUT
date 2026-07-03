@@ -60,11 +60,11 @@ if (env.NODE_ENV === 'production') {
   app.use(express.static(frontendPath));
 
   // SPA fallback — serve index.html for all non-API routes
-  app.get('*', (req, res) => {
+  app.get('(.*)', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 
-  console.log(`📁 Serving frontend from ${frontendPath}`);
+console.log(`📁 Serving frontend from ${frontendPath}`);
 }
 
 // ─── WebSocket Events ──────────────────────────────────────
