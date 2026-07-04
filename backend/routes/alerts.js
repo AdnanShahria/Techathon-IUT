@@ -103,7 +103,7 @@ async function getAlerts() {
         severity: 'critical',
         message: `🔥 FIRE DETECTED in ${room}! Sensor value: ${data.fire}.`,
         room,
-        timestamp: new Date(data.timestamp).toISOString(),
+        timestamp: now.toISOString(),
       });
     }
     if (data.co2 >= 800) {
@@ -113,7 +113,7 @@ async function getAlerts() {
         severity: 'warning',
         message: `💨 High CO2 levels in ${room}! Sensor value: ${data.co2}ppm.`,
         room,
-        timestamp: new Date(data.timestamp).toISOString(),
+        timestamp: now.toISOString(),
       });
     }
   }

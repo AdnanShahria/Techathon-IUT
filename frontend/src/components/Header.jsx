@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Zap, Clock, Building2 } from 'lucide-react';
+import { Zap, Clock } from 'lucide-react';
 
 /**
  * Header component with office name, live indicator, total power, and clock.
@@ -28,7 +28,7 @@ export default function Header({ totalPower, devicesOn, connected }) {
   return (
     <header className="header">
       <div className="header-left">
-        <div className="header-logo"><Building2 size={24} color="white" /></div>
+        <div className="header-logo" style={{ background: 'transparent', boxShadow: 'none' }}><img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', display: 'block', borderRadius: 'var(--radius-md)', objectFit: 'cover' }} /></div>
         <div>
           <h1 className="header-title">Smart Office Monitor</h1>
           <p className="header-subtitle">Real-time device tracking & power analytics</p>

@@ -16,14 +16,14 @@ export default function PowerMeter({ totalPower, powerByRoom, estimatedDailyKWh,
       // Start the bill at a proportional amount of the daily estimate based on the time of day
       const now = new Date();
       const fractionOfDay = (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()) / 86400;
-      setLiveBill(estimatedDailyKWh * 0.12 * fractionOfDay);
+      setLiveBill(estimatedDailyKWh * 9 * fractionOfDay);
     }
   }, [estimatedDailyKWh]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // cost per second = (watts / 1000) * $0.12 / 3600
-      const costPerSec = (totalPower / 1000) * (0.12 / 3600);
+      // cost per second = (watts / 1000) * 9 tk / 3600
+      const costPerSec = (totalPower / 1000) * (9 / 3600);
       setLiveBill(prev => prev + costPerSec);
     }, 1000);
     return () => clearInterval(interval);
@@ -84,9 +84,9 @@ export default function PowerMeter({ totalPower, powerByRoom, estimatedDailyKWh,
           <div className="power-stat">
             <div className="power-stat-value" style={{ color: 'var(--accent-green)' }}>
               <Zap size={16} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-              ${liveBill.toFixed(6)}
+              {liveBill.toFixed(6)} tk
             </div>
-            <div className="power-stat-label">Live Session Cost</div>
+            <div className="power-stat-label">Daily cost</div>
           </div>
           <div className="power-stat">
             <div className="power-stat-value" style={{ color: 'var(--accent-cyan)' }}>

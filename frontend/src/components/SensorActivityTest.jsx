@@ -137,7 +137,7 @@ export default function SensorActivityTest() {
               gap: '8px'
             }}
           >
-            Update
+            TEST
           </button>
         </div>
 

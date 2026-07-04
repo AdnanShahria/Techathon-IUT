@@ -15,8 +15,7 @@ let simulatorInterval = null;
  */
 function startSimulator(io) {
   if (simulatorInterval) return; // prevent double-start
-
-  console.log('🔄 Device simulator started (toggling every 5-10s)');
+  console.log('🔄 Device simulator initialized (Manual Mode - Automatic toggling disabled)');
 
   async function tick() {
     try {
