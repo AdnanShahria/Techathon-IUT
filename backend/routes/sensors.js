@@ -48,6 +48,22 @@ router.post('/update', async (req, res) => {
         alerts,
         timestamp: new Date().toISOString(),
       });
+
+      // Log usage to history and push live record
+      await db.logUsageHistory();
+      const now = new Date().toISOString();
+      io.emit('usageHistoryUpdate', {
+        record: {
+          timestamp: now,
+          total_power_watts: usage.totalPowerWatts,
+          drawing_room_watts: usage.powerByRoom['Drawing Room'] || 0,
+          work_room_1_watts: usage.powerByRoom['Work Room 1'] || 0,
+          work_room_2_watts: usage.powerByRoom['Work Room 2'] || 0,
+          devices_on: usage.devicesOn,
+          cost: parseFloat(((usage.totalPowerWatts / 1000) * 9).toFixed(4)),
+        },
+        timestamp: now,
+      });
     }
 
     res.json({ success: true, room, fire, co2, devicesUpdated });

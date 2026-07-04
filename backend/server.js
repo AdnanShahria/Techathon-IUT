@@ -26,9 +26,12 @@ const app = express();
 const server = http.createServer(app);
 
 // ─── Socket.IO ─────────────────────────────────────────────
+// Allow any localhost port in dev (covers Vite on 5173, 5174, etc.)
+const DEV_CORS_ORIGIN = /^http:\/\/localhost:\d+$/;
+
 const io = new Server(server, {
   cors: {
-    origin: env.NODE_ENV === 'production' ? false : ['http://localhost:5173', 'http://localhost:3000'],
+    origin: env.NODE_ENV === 'production' ? false : DEV_CORS_ORIGIN,
     methods: ['GET', 'POST'],
   },
 });
@@ -36,7 +39,7 @@ app.set('io', io);
 
 // ─── Middleware ─────────────────────────────────────────────
 app.use(cors({
-  origin: env.NODE_ENV === 'production' ? false : ['http://localhost:5173', 'http://localhost:3000'],
+  origin: env.NODE_ENV === 'production' ? false : DEV_CORS_ORIGIN,
 }));
 app.use(express.json({ limit: '10mb' })); // for base64 image uploads via proxy
 

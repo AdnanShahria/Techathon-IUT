@@ -5,9 +5,12 @@ const SOCKET_URL = import.meta.env.DEV
   ? 'http://localhost:4000'
   : window.location.origin;
 
+const API_URL = import.meta.env.DEV ? 'http://localhost:4000/api' : '/api';
+
 /**
  * WebSocket hook that connects to the backend Socket.IO server.
  * Receives initial state on connect and live updates as devices toggle.
+ * Also listens for usageHistoryUpdate to stream new DB records live.
  */
 export function useSocket() {
   const [data, setData] = useState({
@@ -20,6 +23,10 @@ export function useSocket() {
     sensors: {},
     connected: false,
     lastUpdate: null,
+    // ── Real-time history record (latest DB row pushed by server)
+    latestHistoryRecord: null,
+    // ── Daily cost accumulated from DB since midnight
+    dailyCostFromDB: 0,
   });
 
   const socketRef = useRef(null);
@@ -31,6 +38,18 @@ export function useSocket() {
       connected: true,
       lastUpdate: new Date().toISOString(),
     }));
+  }, []);
+
+  // Fetch today's accumulated cost from DB on mount to seed the PowerMeter ticker
+  useEffect(() => {
+    fetch(`${API_URL}/usage/daily-cost`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.dailyCost !== undefined) {
+          setData((prev) => ({ ...prev, dailyCostFromDB: d.dailyCost }));
+        }
+      })
+      .catch(() => {}); // silent — ticker starts from 0 if unavailable
   }, []);
 
   useEffect(() => {
@@ -68,8 +87,23 @@ export function useSocket() {
       });
     });
 
+    // ── Live history record pushed by server on every tick / sensor update
+    socket.on('usageHistoryUpdate', (payload) => {
+      setData((prev) => ({
+        ...prev,
+        latestHistoryRecord: payload.record,
+        lastUpdate: payload.timestamp,
+      }));
+    });
+
     return () => {
-      socket.disconnect();
+      if (socket.connected) {
+        socket.disconnect();
+      } else {
+        const cleanup = () => { socket.disconnect(); };
+        socket.once('connect', cleanup);
+        socket.once('connect_error', cleanup);
+      }
     };
   }, [updateData]);
 

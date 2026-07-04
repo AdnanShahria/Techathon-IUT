@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import DeviceIcon from './DeviceIcon';
-import { Flame, Wind, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Flame, Wind, ShieldCheck, AlertTriangle, ChevronDown } from 'lucide-react';
 
 /**
  * Card displaying a single room's devices with power badge and sensor status.
  */
-export default function RoomCard({ roomName, devices, power, sensors }) {
+export default function RoomCard({ roomName, devices, power, sensors, isDefaultExpanded }) {
+  const [isExpanded, setIsExpanded] = useState(isDefaultExpanded ?? true);
   const isActive = power > 0;
   
   // Sensors data
@@ -14,13 +16,24 @@ export default function RoomCard({ roomName, devices, power, sensors }) {
   const hasDanger = isFireDanger || isCo2Danger;
 
   return (
-    <div className={`room-card ${hasDanger ? 'danger' : ''}`} style={hasDanger ? { borderColor: '#ff453a', background: 'rgba(255, 69, 58, 0.05)' } : {}}>
-      <div className="room-card-header" style={{ alignItems: 'center' }}>
+    <div className={`room-card ${hasDanger ? 'danger' : ''} ${!isExpanded ? 'mobile-collapsed' : ''}`} style={hasDanger ? { borderColor: '#ff453a', background: 'rgba(255, 69, 58, 0.05)' } : {}}>
+      <div className="room-card-header" style={{ alignItems: 'center', cursor: 'pointer' }} onClick={() => setIsExpanded(!isExpanded)}>
         <h3 className="room-name">{roomName}</h3>
         
-        <span className={`room-power-badge ${isActive ? 'active' : 'idle'}`}>
-          {isActive ? `${power}W` : 'IDLE'}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className={`room-power-badge ${isActive ? 'active' : 'idle'}`}>
+            {isActive ? `${power}W` : 'IDLE'}
+          </span>
+          <ChevronDown 
+            className="room-arrow" 
+            size={20} 
+            style={{ 
+              color: 'var(--text-muted)', 
+              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s ease'
+            }} 
+          />
+        </div>
       </div>
 
       <div className="room-devices">

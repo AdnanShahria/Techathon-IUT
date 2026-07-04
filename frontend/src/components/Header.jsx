@@ -36,17 +36,19 @@ export default function Header({ totalPower, devicesOn, connected }) {
       </div>
 
       <div className="header-right">
-        <div className="live-badge">
-          <span className={`live-dot ${!connected ? 'disconnected' : ''}`}></span>
-          {connected ? 'LIVE' : 'OFFLINE'}
-        </div>
+        <div className="header-status-group">
+          <div className="live-badge">
+            <span className={`live-dot ${!connected ? 'disconnected' : ''}`}></span>
+            {connected ? 'LIVE' : 'OFFLINE'}
+          </div>
 
-        <div className="header-power">
-          <Zap size={16} />
-          <span>{totalPower}W</span>
-          <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>
-            • {devicesOn || 0} on
-          </span>
+          <div className="header-power">
+            <Zap size={16} />
+            <span>{totalPower}W</span>
+            <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>
+              • {devicesOn || 0} on
+            </span>
+          </div>
         </div>
 
         <div className="header-time">

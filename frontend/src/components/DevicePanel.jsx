@@ -25,13 +25,14 @@ export default function DevicePanel({ devices, powerByRoom, sensors }) {
       </h2>
 
       <div className="rooms-grid">
-        {roomOrder.map((roomName) => (
+        {roomOrder.map((roomName, index) => (
           <RoomCard
             key={roomName}
             roomName={roomName}
             devices={rooms[roomName] || []}
             power={powerByRoom?.[roomName] || 0}
             sensors={sensors?.[roomName] || { fire: 0, co2: 0 }}
+            isDefaultExpanded={index === 0}
           />
         ))}
       </div>

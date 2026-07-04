@@ -198,27 +198,157 @@ async function logUsageHistory() {
 
   await client.execute({
     sql: `INSERT INTO usage_history 
-          (timestamp, total_power_watts, drawing_room_watts, work_room_1_watts, work_room_2_watts, devices_on)
-          VALUES (?, ?, ?, ?, ?, ?)`,
+          (timestamp, total_power_watts, drawing_room_watts, work_room_1_watts, work_room_2_watts, devices_on, cost)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
     args: [
       now,
       usage.totalPowerWatts,
       usage.powerByRoom['Drawing Room'] || 0,
       usage.powerByRoom['Work Room 1'] || 0,
       usage.powerByRoom['Work Room 2'] || 0,
-      usage.devicesOn
+      usage.devicesOn,
+      (usage.totalPowerWatts / 1000) * 9 // Cost based on 9 tk/kWh
     ]
   });
 }
 
 /**
- * Get usage history (last 50 records).
+ * Get usage history (last 60 records) — used for Hourly tab.
  */
 async function getUsageHistory() {
   const client = getClient();
-  const result = await client.execute('SELECT * FROM usage_history ORDER BY timestamp DESC LIMIT 50');
+  const result = await client.execute('SELECT * FROM usage_history ORDER BY timestamp DESC LIMIT 60');
   return result.rows;
 }
+
+/**
+ * Get usage history aggregated by time range.
+ * @param {'hourly'|'daily'|'weekly'|'monthly'|'yearly'} range
+ * @returns Array of aggregated { bucket, avg_power, avg_cost, total_cost, avg_devices_on }
+ */
+async function getUsageHistoryByRange(range) {
+  const client = getClient();
+
+  let sql;
+  switch (range) {
+    case 'hourly':
+      // Last 60 raw snapshots (most recent first)
+      return (await client.execute(
+        'SELECT * FROM usage_history ORDER BY timestamp DESC LIMIT 60'
+      )).rows;
+
+    case 'daily':
+      // Last 24 h, bucketed into 30-min slots
+      sql = `
+        SELECT
+          strftime('%Y-%m-%dT%H:', timestamp) ||
+            CASE WHEN CAST(strftime('%M', timestamp) AS INTEGER) < 30 THEN '00' ELSE '30' END AS bucket,
+          ROUND(AVG(total_power_watts))  AS avg_power,
+          ROUND(AVG(drawing_room_watts)) AS drawing_room_watts,
+          ROUND(AVG(work_room_1_watts))  AS work_room_1_watts,
+          ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
+          ROUND(AVG(devices_on))         AS avg_devices_on,
+          ROUND(SUM(cost), 4)            AS total_cost,
+          ROUND(AVG(cost), 4)            AS avg_cost
+        FROM usage_history
+        WHERE timestamp >= datetime('now', '-24 hours')
+        GROUP BY bucket
+        ORDER BY bucket ASC
+      `;
+      break;
+
+    case 'weekly':
+      // Last 7 days, bucketed by hour
+      sql = `
+        SELECT
+          strftime('%Y-%m-%dT%H:00', timestamp) AS bucket,
+          ROUND(AVG(total_power_watts))  AS avg_power,
+          ROUND(AVG(drawing_room_watts)) AS drawing_room_watts,
+          ROUND(AVG(work_room_1_watts))  AS work_room_1_watts,
+          ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
+          ROUND(AVG(devices_on))         AS avg_devices_on,
+          ROUND(SUM(cost), 4)            AS total_cost,
+          ROUND(AVG(cost), 4)            AS avg_cost
+        FROM usage_history
+        WHERE timestamp >= datetime('now', '-7 days')
+        GROUP BY bucket
+        ORDER BY bucket ASC
+      `;
+      break;
+
+    case 'monthly':
+      // Last 30 days, bucketed by 6-hour periods
+      sql = `
+        SELECT
+          strftime('%Y-%m-%dT', timestamp) ||
+            CASE
+              WHEN CAST(strftime('%H', timestamp) AS INTEGER) < 6  THEN '00:00'
+              WHEN CAST(strftime('%H', timestamp) AS INTEGER) < 12 THEN '06:00'
+              WHEN CAST(strftime('%H', timestamp) AS INTEGER) < 18 THEN '12:00'
+              ELSE '18:00'
+            END AS bucket,
+          ROUND(AVG(total_power_watts))  AS avg_power,
+          ROUND(AVG(drawing_room_watts)) AS drawing_room_watts,
+          ROUND(AVG(work_room_1_watts))  AS work_room_1_watts,
+          ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
+          ROUND(AVG(devices_on))         AS avg_devices_on,
+          ROUND(SUM(cost), 4)            AS total_cost,
+          ROUND(AVG(cost), 4)            AS avg_cost
+        FROM usage_history
+        WHERE timestamp >= datetime('now', '-30 days')
+        GROUP BY bucket
+        ORDER BY bucket ASC
+      `;
+      break;
+
+    case 'yearly':
+      // Last 365 days, bucketed by day
+      sql = `
+        SELECT
+          strftime('%Y-%m-%d', timestamp) AS bucket,
+          ROUND(AVG(total_power_watts))  AS avg_power,
+          ROUND(AVG(drawing_room_watts)) AS drawing_room_watts,
+          ROUND(AVG(work_room_1_watts))  AS work_room_1_watts,
+          ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
+          ROUND(AVG(devices_on))         AS avg_devices_on,
+          ROUND(SUM(cost), 4)            AS total_cost,
+          ROUND(AVG(cost), 4)            AS avg_cost
+        FROM usage_history
+        WHERE timestamp >= datetime('now', '-365 days')
+        GROUP BY bucket
+        ORDER BY bucket ASC
+      `;
+      break;
+
+    default:
+      return (await client.execute(
+        'SELECT * FROM usage_history ORDER BY timestamp DESC LIMIT 60'
+      )).rows;
+  }
+
+  const result = await client.execute(sql);
+  return result.rows;
+}
+
+/**
+ * Get total cost accumulated today (since midnight local time).
+ * Used to seed the PowerMeter live bill ticker.
+ */
+async function getDailyCostAccumulated() {
+  const client = getClient();
+  // Use today's date in ISO format (UTC)
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const result = await client.execute({
+    sql: `SELECT COALESCE(SUM(cost), 0) AS daily_cost
+          FROM usage_history
+          WHERE timestamp >= ?`,
+    args: [todayStart.toISOString()],
+  });
+  return parseFloat(result.rows[0].daily_cost) || 0;
+}
+
 
 /**
  * Log sensor data.
@@ -287,6 +417,8 @@ module.exports = {
   getUsageSummary,
   logUsageHistory,
   getUsageHistory,
+  getUsageHistoryByRange,
+  getDailyCostAccumulated,
   logSensorData,
   getLatestSensorData,
 };

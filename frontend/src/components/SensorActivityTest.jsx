@@ -48,7 +48,7 @@ export default function SensorActivityTest() {
       </h2>
 
       <div className="sensor-test-card" style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-subtle)', overflowX: 'auto' }}>
-        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '2rem', alignItems: 'center', minWidth: '800px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'center' }}>
         
         {/* Room Selection */}
         <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

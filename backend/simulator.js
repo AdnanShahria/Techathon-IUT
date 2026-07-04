@@ -1,7 +1,9 @@
 // ─── simulator.js ───────────────────────────────────────────
 // Simulates real-world device state changes by randomly
-// toggling devices every 5-10 seconds. Pushes updates via
+// toggling devices every 5 seconds. Pushes updates via
 // Socket.IO to all connected dashboard clients.
+// Also logs each tick to usage_history and emits
+// usageHistoryUpdate so HistoryPanel stays live.
 // ─────────────────────────────────────────────────────────────
 
 const db = require('./db');
@@ -15,7 +17,7 @@ let simulatorInterval = null;
  */
 function startSimulator(io) {
   if (simulatorInterval) return; // prevent double-start
-  console.log('🔄 Device simulator initialized (Manual Mode - Automatic toggling disabled)');
+  console.log('🔄 Device simulator started (5-second interval — live history updates)');
 
   async function tick() {
     try {
@@ -32,8 +34,23 @@ function startSimulator(io) {
       const allDevices = await db.getAllDevices();
       const usage = await db.getUsageSummary();
       const alerts = await getAlerts();
+      const now = new Date().toISOString();
 
-      // Push to all connected WebSocket clients
+      // Log to usage_history in DB
+      await db.logUsageHistory();
+
+      // Build latest history record to push live to frontend
+      const latestRecord = {
+        timestamp: now,
+        total_power_watts: usage.totalPowerWatts,
+        drawing_room_watts: usage.powerByRoom['Drawing Room'] || 0,
+        work_room_1_watts: usage.powerByRoom['Work Room 1'] || 0,
+        work_room_2_watts: usage.powerByRoom['Work Room 2'] || 0,
+        devices_on: usage.devicesOn,
+        cost: parseFloat(((usage.totalPowerWatts / 1000) * 9).toFixed(4)),
+      };
+
+      // Push full device update to all clients
       io.emit('deviceUpdate', {
         device: updated,
         allDevices,
@@ -41,22 +58,25 @@ function startSimulator(io) {
         powerByRoom: usage.powerByRoom,
         estimatedDailyKWh: usage.estimatedDailyKWh,
         alerts,
-        timestamp: new Date().toISOString(),
+        timestamp: now,
       });
 
-      // Log to usage history
-      await db.logUsageHistory();
+      // Push live history record so HistoryPanel appends it without re-fetching
+      io.emit('usageHistoryUpdate', {
+        record: latestRecord,
+        timestamp: now,
+      });
 
       console.log(
-        `  ⚡ ${updated.name} (${updated.room}) → ${updated.status.toUpperCase()}`
+        `  ⚡ ${updated.name} (${updated.room}) → ${updated.status.toUpperCase()} | ${usage.totalPowerWatts}W | ${latestRecord.cost.toFixed(4)} tk/hr`
       );
     } catch (err) {
       console.error('Simulator error:', err.message);
     }
   }
 
-  // Simulator disabled: Using real hardware (ESP32) data now.
-  // simulatorInterval = setTimeout(tick, 3000);
+  // Run every 5 seconds
+  simulatorInterval = setInterval(tick, 5000);
 }
 
 /**
@@ -64,7 +84,7 @@ function startSimulator(io) {
  */
 function stopSimulator() {
   if (simulatorInterval) {
-    clearTimeout(simulatorInterval);
+    clearInterval(simulatorInterval);
     simulatorInterval = null;
     console.log('🛑 Device simulator stopped');
   }

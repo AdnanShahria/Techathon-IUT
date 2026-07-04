@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS usage_history (
   drawing_room_watts INTEGER NOT NULL,
   work_room_1_watts INTEGER NOT NULL,
   work_room_2_watts INTEGER NOT NULL,
-  devices_on INTEGER NOT NULL
+  devices_on INTEGER NOT NULL,
+  cost REAL NOT NULL
 );
 
 -- ─── sensors_history table ───────────────────────────────────
@@ -31,3 +32,7 @@ CREATE TABLE IF NOT EXISTS sensors_history (
   fire INTEGER NOT NULL,
   co2 INTEGER NOT NULL
 );
+
+-- ─── Indexes for fast range queries ─────────────────────────
+CREATE INDEX IF NOT EXISTS idx_usage_history_timestamp ON usage_history(timestamp);
+CREATE INDEX IF NOT EXISTS idx_sensors_history_timestamp ON sensors_history(timestamp);
