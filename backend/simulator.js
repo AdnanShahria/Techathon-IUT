@@ -24,12 +24,6 @@ function startSimulator(io) {
       const devices = await db.getAllDevices();
       if (devices.length === 0) return;
 
-      // Pick a random device to toggle
-      const randomDevice = devices[Math.floor(Math.random() * devices.length)];
-      const updated = await db.toggleDevice(randomDevice.id);
-
-      if (!updated) return;
-
       // Fetch fresh state for broadcast
       const allDevices = await db.getAllDevices();
       const usage = await db.getUsageSummary();
@@ -47,19 +41,8 @@ function startSimulator(io) {
         work_room_1_watts: usage.powerByRoom['Work Room 1'] || 0,
         work_room_2_watts: usage.powerByRoom['Work Room 2'] || 0,
         devices_on: usage.devicesOn,
-        cost: parseFloat(((usage.totalPowerWatts / 1000) * 9).toFixed(4)),
+        cost: parseFloat(((usage.totalPowerWatts / 1000) * 9 * (5 / 3600)).toFixed(4)),
       };
-
-      // Push full device update to all clients
-      io.emit('deviceUpdate', {
-        device: updated,
-        allDevices,
-        totalPower: usage.totalPowerWatts,
-        powerByRoom: usage.powerByRoom,
-        estimatedDailyKWh: usage.estimatedDailyKWh,
-        alerts,
-        timestamp: now,
-      });
 
       // Push live history record so HistoryPanel appends it without re-fetching
       io.emit('usageHistoryUpdate', {
@@ -67,9 +50,6 @@ function startSimulator(io) {
         timestamp: now,
       });
 
-      console.log(
-        `  ⚡ ${updated.name} (${updated.room}) → ${updated.status.toUpperCase()} | ${usage.totalPowerWatts}W | ${latestRecord.cost.toFixed(4)} tk/hr`
-      );
     } catch (err) {
       console.error('Simulator error:', err.message);
     }

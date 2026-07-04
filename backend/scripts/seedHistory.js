@@ -33,7 +33,7 @@ function jitter(base, pct = 0.15) {
 }
 
 // ─── Simulate realistic power for a given Date ────────────────
-function simulatePower(dt) {
+function simulatePower(dt, intervalMs) {
   const hour = dt.getHours();
   const dayOfWeek = dt.getDay(); // 0=Sun, 6=Sat
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
@@ -80,7 +80,8 @@ function simulatePower(dt) {
   }
 
   totalPower = Math.round(totalPower);
-  const cost = parseFloat(((totalPower / 1000) * RATE_TK_PER_KWH).toFixed(4));
+  const intervalHours = intervalMs / 3600000;
+  const cost = parseFloat(((totalPower / 1000) * RATE_TK_PER_KWH * intervalHours).toFixed(4));
 
   return {
     timestamp: dt.toISOString(),
@@ -97,7 +98,7 @@ function simulatePower(dt) {
 function generateSeries(startMs, endMs, stepMs) {
   const records = [];
   for (let t = startMs; t <= endMs; t += stepMs) {
-    records.push(simulatePower(new Date(t)));
+    records.push(simulatePower(new Date(t), stepMs));
   }
   return records;
 }

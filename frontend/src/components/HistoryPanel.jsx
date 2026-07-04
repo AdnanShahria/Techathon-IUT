@@ -56,11 +56,14 @@ function formatRow(row, index) {
     timeLabel = rawTs;
   }
 
+  const hourlyRate = (power / 1000) * 9;
+
   return {
     id: row.id || `agg-${index}`,
     time: timeLabel,
     power,
-    cost: cost.toFixed(4),
+    cost: hourlyRate.toFixed(4),
+    totalCost: isAggregated ? Number(row.total_cost || 0) : Number(row.cost || 0),
     devicesOn,
     rawTimestamp: rawTs,
     isAggregated,
@@ -174,7 +177,7 @@ export default function HistoryPanel({ latestHistoryRecord, liveDailyCost = 0 })
 
   const displayCost = timeRange === 'Hourly'
     ? liveDailyCost.toFixed(2)         // live ticker from PowerMeter
-    : history.reduce((s, d) => s + parseFloat(d.cost), 0).toFixed(2); // sum from DB
+    : history.reduce((s, d) => s + parseFloat(d.totalCost), 0).toFixed(2); // sum from DB
 
   const ROW_HEIGHT = 50;
   const MAX_VISIBLE_ROWS = 6;

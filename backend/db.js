@@ -196,6 +196,16 @@ async function logUsageHistory() {
   const client = getClient();
   const now = new Date().toISOString();
 
+  // Get last record to find elapsed time
+  const lastRecord = await client.execute('SELECT timestamp FROM usage_history ORDER BY timestamp DESC LIMIT 1');
+  let elapsedHours = 5 / 3600; // default to 5 seconds
+  if (lastRecord.rows.length > 0) {
+    const lastTime = new Date(lastRecord.rows[0].timestamp);
+    elapsedHours = (new Date(now) - lastTime) / 3600000;
+  }
+  if (elapsedHours > 1) elapsedHours = 1;
+  if (elapsedHours < 0) elapsedHours = 0;
+
   await client.execute({
     sql: `INSERT INTO usage_history 
           (timestamp, total_power_watts, drawing_room_watts, work_room_1_watts, work_room_2_watts, devices_on, cost)
@@ -207,7 +217,7 @@ async function logUsageHistory() {
       usage.powerByRoom['Work Room 1'] || 0,
       usage.powerByRoom['Work Room 2'] || 0,
       usage.devicesOn,
-      (usage.totalPowerWatts / 1000) * 9 // Cost based on 9 tk/kWh
+      (usage.totalPowerWatts / 1000) * 9 * elapsedHours
     ]
   });
 }
@@ -249,7 +259,7 @@ async function getUsageHistoryByRange(range) {
           ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
           ROUND(AVG(devices_on))         AS avg_devices_on,
           ROUND(SUM(cost), 4)            AS total_cost,
-          ROUND(AVG(cost), 4)            AS avg_cost
+          ROUND((AVG(total_power_watts) / 1000) * 9, 4) AS avg_cost
         FROM usage_history
         WHERE timestamp >= datetime('now', '-24 hours')
         GROUP BY bucket
@@ -268,7 +278,7 @@ async function getUsageHistoryByRange(range) {
           ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
           ROUND(AVG(devices_on))         AS avg_devices_on,
           ROUND(SUM(cost), 4)            AS total_cost,
-          ROUND(AVG(cost), 4)            AS avg_cost
+          ROUND((AVG(total_power_watts) / 1000) * 9, 4) AS avg_cost
         FROM usage_history
         WHERE timestamp >= datetime('now', '-7 days')
         GROUP BY bucket
@@ -293,7 +303,7 @@ async function getUsageHistoryByRange(range) {
           ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
           ROUND(AVG(devices_on))         AS avg_devices_on,
           ROUND(SUM(cost), 4)            AS total_cost,
-          ROUND(AVG(cost), 4)            AS avg_cost
+          ROUND((AVG(total_power_watts) / 1000) * 9, 4) AS avg_cost
         FROM usage_history
         WHERE timestamp >= datetime('now', '-30 days')
         GROUP BY bucket
@@ -312,7 +322,7 @@ async function getUsageHistoryByRange(range) {
           ROUND(AVG(work_room_2_watts))  AS work_room_2_watts,
           ROUND(AVG(devices_on))         AS avg_devices_on,
           ROUND(SUM(cost), 4)            AS total_cost,
-          ROUND(AVG(cost), 4)            AS avg_cost
+          ROUND((AVG(total_power_watts) / 1000) * 9, 4) AS avg_cost
         FROM usage_history
         WHERE timestamp >= datetime('now', '-365 days')
         GROUP BY bucket
