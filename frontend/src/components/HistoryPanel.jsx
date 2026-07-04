@@ -57,6 +57,19 @@ export default function HistoryPanel({ lastUpdate }) {
 
   const displayData = getDisplayData();
 
+  const avgPower = displayData.length > 0 ? displayData.reduce((sum, d) => sum + d.power, 0) / displayData.length : 0;
+  const getHoursForRange = (range) => {
+    switch(range) {
+      case 'Hourly': return 1;
+      case 'Daily': return 8; // 8-hour workday
+      case 'Weekly': return 40; // 5 days * 8 hours
+      case 'Monthly': return 176; // 22 days * 8 hours
+      case 'Yearly': return 2080; // 260 days * 8 hours
+      default: return 8;
+    }
+  };
+  const totalCostForRange = ((avgPower / 1000) * getHoursForRange(timeRange) * 9).toFixed(2);
+
   // Each data row is ~42px tall (padding 0.75rem top+bottom = 24px + content ~18px) + 8px gap
   const ROW_HEIGHT = 50; // px per row including gap
   const MAX_VISIBLE_ROWS = 6;
@@ -110,8 +123,15 @@ export default function HistoryPanel({ lastUpdate }) {
 
   const renderContent = (isModal = false) => (
     <>
-      {/* View Toggles */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px', alignItems: 'center', flexShrink: 0 }}>
+      {/* View Toggles & Total Cost */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center', flexShrink: 0 }}>
+        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          Est. Cost for Range: <span style={{ 
+            color: '#4ade80', 
+            fontWeight: 'bold',
+            textShadow: '0 0 4px rgba(74, 222, 128, 0.3), 0 0 8px rgba(74, 222, 128, 0.15)'
+          }}>{totalCostForRange} tk</span>
+        </div>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
           {['Hourly', 'Daily', 'Weekly', 'Monthly', 'Yearly', 'Custom'].map(range => (
             <button

@@ -82,7 +82,10 @@ export default function PowerMeter({ totalPower, powerByRoom, estimatedDailyKWh,
             <div className="power-stat-label">Est. Daily kWh</div>
           </div>
           <div className="power-stat">
-            <div className="power-stat-value" style={{ color: 'var(--accent-green)' }}>
+            <div className="power-stat-value" style={{ 
+              color: '#4ade80',
+              textShadow: '0 0 4px rgba(74, 222, 128, 0.3), 0 0 8px rgba(74, 222, 128, 0.15)'
+            }}>
               <Zap size={16} style={{ marginRight: 4, verticalAlign: 'middle' }} />
               {liveBill.toFixed(6)} tk
             </div>
@@ -95,6 +98,14 @@ export default function PowerMeter({ totalPower, powerByRoom, estimatedDailyKWh,
             </div>
             <div className="power-stat-label">Devices Active</div>
           </div>
+        </div>
+
+        <div style={{ marginTop: '1rem', background: 'var(--bg-secondary)', padding: '0.75rem', borderRadius: '8px', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', border: '1px solid var(--border-subtle)' }}>
+          💡 <span style={{ 
+            fontWeight: 600, 
+            color: '#4ade80',
+            textShadow: '0 0 3px rgba(74, 222, 128, 0.2)'
+          }}>1 Unit (kWh) = 9 Tk.</span> Daily cost resets automatically at 12:00 AM.
         </div>
       </div>
     </div>
