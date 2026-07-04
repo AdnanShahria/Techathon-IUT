@@ -74,6 +74,7 @@ async function handleStatus(message) {
   try {
     const devices = await db.getAllDevices();
     const usage = await db.getUsageSummary();
+    const dailyCost = await db.getDailyCostAccumulated();
 
     // Build raw data summary
     const rooms = {};
@@ -88,7 +89,7 @@ async function handleStatus(message) {
     for (const [room, data] of Object.entries(rooms)) {
       rawData += `${room}: ${data.fans.on}/${data.fans.total} fans ON, ${data.lights.on}/${data.lights.total} lights ON\n`;
     }
-    rawData += `Total power: ${usage.totalPowerWatts}W | Devices on: ${usage.devicesOn}/${usage.deviceCount}`;
+    rawData += `Total power: ${usage.totalPowerWatts}W | Devices on: ${usage.devicesOn}/${usage.deviceCount} | Today's accumulated cost: ${dailyCost.toFixed(2)} Tk`;
 
     // Generate conversational response via LLM
     const response = await generateResponse(rawData, 'office status overview (!status)');
@@ -97,7 +98,7 @@ async function handleStatus(message) {
       .setTitle('🏢 Office Status')
       .setDescription(response)
       .setColor(usage.devicesOn > 12 ? 0xff4444 : usage.devicesOn > 6 ? 0xffaa00 : 0x44ff44)
-      .setFooter({ text: `⚡ ${usage.totalPowerWatts}W • ${new Date().toLocaleTimeString()}` })
+      .setFooter({ text: `⚡ ${usage.totalPowerWatts}W • Cost Today: ${dailyCost.toFixed(2)} Tk • ${new Date().toLocaleTimeString()}` })
       .setTimestamp();
 
     message.reply({ embeds: [embed] });
@@ -145,9 +146,11 @@ async function handleRoom(message, roomArg) {
 async function handleUsage(message) {
   try {
     const usage = await db.getUsageSummary();
+    const dailyCost = await db.getDailyCostAccumulated();
 
     let rawData = `Total power right now: ${usage.totalPowerWatts}W\n`;
-    rawData += `Today's estimated usage: ${usage.estimatedDailyKWh} kWh\n`;
+    rawData += `Today's estimated usage: ${usage.estimatedDailyKWh} Units\n`;
+    rawData += `Today's accumulated cost: ${dailyCost.toFixed(2)} Tk\n`;
     rawData += `Devices on: ${usage.devicesOn}/${usage.deviceCount}\n\nPer-room breakdown:\n`;
     for (const [room, watts] of Object.entries(usage.powerByRoom)) {
       rawData += `  ${room}: ${watts}W\n`;
@@ -159,7 +162,7 @@ async function handleUsage(message) {
       .setTitle('⚡ Power Usage Report')
       .setDescription(response)
       .setColor(0xf59e0b)
-      .setFooter({ text: new Date().toLocaleTimeString() })
+      .setFooter({ text: `Cost Today: ${dailyCost.toFixed(2)} Tk • ${new Date().toLocaleTimeString()}` })
       .setTimestamp();
 
     message.reply({ embeds: [embed] });

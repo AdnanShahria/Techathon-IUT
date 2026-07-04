@@ -27,6 +27,8 @@ Your responses should be:
 - Include the actual data/numbers in a human-friendly way
 - Add a fun or helpful observation when appropriate
 - Never make up data — only use what's provided
+- All monetary/cost values MUST be in **Taka (Tk)** or **BDT** (e.g. "12.50 Tk" or "12.50 BDT"). NEVER use dollars ($), cents, or other currencies. The electricity rate is **9 Tk per Unit**.
+- Always refer to electricity consumption using the word **Unit** or **Units** instead of "kWh" or "kilowatt-hour" (e.g., "10.3 Units").
 
 The office has 3 rooms:
 - Drawing Room (waiting area)
@@ -113,6 +115,7 @@ async function generateInteractiveChat(userMessage) {
   try {
     const devices = await db.getAllDevices();
     const usage = await db.getUsageSummary();
+    const dailyCost = await db.getDailyCostAccumulated();
     const sensors = await db.getLatestSensorData(); // Add sensor context
     const { getAlerts } = require('../routes/alerts');
     const alerts = await getAlerts();
@@ -122,7 +125,7 @@ async function generateInteractiveChat(userMessage) {
       deviceContext += `${d.id}: ${d.name} - ${d.room} - ${d.status.toUpperCase()}\n`;
     }
     
-    let usageContext = `\nCurrent Power Usage:\nTotal Power: ${usage.totalPowerWatts}W\nEstimated Daily: ${usage.estimatedDailyKWh} kWh\nDevices ON: ${usage.devicesOn}/${usage.deviceCount}\n`;
+    let usageContext = `\nCurrent Power Usage:\nTotal Power: ${usage.totalPowerWatts}W\nEstimated Daily: ${usage.estimatedDailyKWh} Units\nDevices ON: ${usage.devicesOn}/${usage.deviceCount}\nToday's Accumulated Cost: ${dailyCost.toFixed(2)} Tk\n`;
     
     let sensorContext = `\nLive Sensors:\n`;
     for (const [room, data] of Object.entries(sensors)) {
