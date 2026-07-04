@@ -30,8 +30,14 @@ router.post('/update', async (req, res) => {
       const alerts = await getAlerts();
       const sensors = await db.getLatestSensorData(); // gets all rooms now
 
-      if (isFireAlert) alerts.push({ id: `alert-fire-${room}`, severity: 'critical', message: `🔥 FIRE DETECTED in ${room}! Sensor value: ${fire}.` });
-      if (isCo2Alert) alerts.push({ id: `alert-co2-${room}`, severity: 'warning', message: `💨 High CO2 levels in ${room}! Sensor value: ${co2}.` });
+      if (isFireAlert) {
+        const fireAlert = { id: `alert-fire-${room}-${Date.now()}`, severity: 'critical', message: `🔥 FIRE DETECTED in ${room}! Sensor value: ${fire}.` };
+        require('../discord/bot').postInstantAlert(fireAlert);
+      }
+      if (isCo2Alert) {
+        const co2Alert = { id: `alert-co2-${room}-${Date.now()}`, severity: 'warning', message: `💨 High CO2 levels in ${room}! Sensor value: ${co2}.` };
+        require('../discord/bot').postInstantAlert(co2Alert);
+      }
 
       io.emit('deviceUpdate', {
         sensors,

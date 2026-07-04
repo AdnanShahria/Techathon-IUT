@@ -1,4 +1,5 @@
-import { AlertTriangle, Clock } from 'lucide-react';
+import { AlertTriangle, Clock, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 /**
  * Alerts panel showing active anomalies:
@@ -6,15 +7,57 @@ import { AlertTriangle, Clock } from 'lucide-react';
  * - All devices ON for 2+ hours
  * - High power consumption
  */
-export default function AlertsPanel({ alerts }) {
+export default function AlertsPanel({ alerts: initialAlerts }) {
+  const [alerts, setAlerts] = useState(initialAlerts);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    setAlerts(initialAlerts);
+  }, [initialAlerts]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const API_URL = import.meta.env.DEV ? 'http://localhost:4000/api' : '/api';
+      const res = await fetch(`${API_URL}/alerts`);
+      const data = await res.json();
+      if (data.alerts) setAlerts(data.alerts);
+    } catch (err) {
+      console.error('Failed to fetch alerts:', err);
+    }
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
+
   return (
     <div className="alerts-section">
-      <h2 className="section-title">
+      <h2 className="section-title" style={{ display: 'flex', alignItems: 'center' }}>
         <span className="section-title-icon rose">
           <AlertTriangle size={16} />
         </span>
         Active Alerts
-        {alerts.length > 0 && (
+
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            onClick={handleRefresh}
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              color: 'var(--text-muted)', 
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center',
+              padding: '4px',
+              transition: 'color 0.2s',
+              animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+            title="Refresh Alerts"
+          >
+            <RefreshCw size={16} />
+          </button>
+
+          {alerts.length > 0 && (
           <span style={{
             marginLeft: 'auto',
             background: 'rgba(244, 63, 94, 0.15)',
@@ -26,7 +69,8 @@ export default function AlertsPanel({ alerts }) {
           }}>
             {alerts.length}
           </span>
-        )}
+          )}
+        </div>
       </h2>
 
       <div className="alerts-card">

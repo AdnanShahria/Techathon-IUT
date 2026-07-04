@@ -17,6 +17,7 @@ export default function RoomCard({ roomName, devices, power, sensors }) {
     <div className={`room-card ${hasDanger ? 'danger' : ''}`} style={hasDanger ? { borderColor: '#ff453a', background: 'rgba(255, 69, 58, 0.05)' } : {}}>
       <div className="room-card-header" style={{ alignItems: 'center' }}>
         <h3 className="room-name">{roomName}</h3>
+        
         <span className={`room-power-badge ${isActive ? 'active' : 'idle'}`}>
           {isActive ? `${power}W` : 'IDLE'}
         </span>
@@ -43,7 +44,7 @@ export default function RoomCard({ roomName, devices, power, sensors }) {
             {hasDanger ? <AlertTriangle size={20} strokeWidth={2} /> : <ShieldCheck size={20} strokeWidth={2} />}
           </div>
           <span className="device-label">Sensors</span>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', marginTop: '6px', fontSize: '0.65rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', marginTop: '4px', fontSize: '0.65rem' }}>
             <span style={{ color: isFireDanger ? '#ff453a' : 'var(--text-muted)' }}>🔥 {fire}</span>
             <span style={{ color: isCo2Danger ? '#ff9f0a' : 'var(--text-muted)' }}>💨 {co2}</span>
           </div>

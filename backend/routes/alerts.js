@@ -93,6 +93,31 @@ async function getAlerts() {
     });
   }
 
+  // ─── Alert 4: Fire & CO2 Sensors ──────────────────────
+  const sensors = await db.getLatestSensorData();
+  for (const [room, data] of Object.entries(sensors)) {
+    if (data.fire >= 1024) {
+      alerts.push({
+        id: `alert-fire-${room.replace(/\s/g, '-').toLowerCase()}`,
+        type: 'fire-alert',
+        severity: 'critical',
+        message: `🔥 FIRE DETECTED in ${room}! Sensor value: ${data.fire}.`,
+        room,
+        timestamp: new Date(data.timestamp).toISOString(),
+      });
+    }
+    if (data.co2 >= 800) {
+      alerts.push({
+        id: `alert-co2-${room.replace(/\s/g, '-').toLowerCase()}`,
+        type: 'co2-alert',
+        severity: 'warning',
+        message: `💨 High CO2 levels in ${room}! Sensor value: ${data.co2}ppm.`,
+        room,
+        timestamp: new Date(data.timestamp).toISOString(),
+      });
+    }
+  }
+
   return alerts;
 }
 

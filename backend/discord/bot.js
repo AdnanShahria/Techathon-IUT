@@ -44,9 +44,8 @@ async function startBot() {
     if (content === '!usage') return handleUsage(message);
     if (content === '!help') return handleHelp(message);
 
-    if (content.startsWith('!ai ') || message.mentions.has(client.user)) {
-      return handleAiChat(message);
-    }
+    // If it's not a strict command, let the AI try to understand it naturally
+    return handleAiChat(message);
   });
 
   client.on('clientReady', () => {
@@ -189,7 +188,7 @@ async function handleHelp(message) {
 // ─── AI Chat / Device Control ───────────────────────────────
 async function handleAiChat(message) {
   try {
-    // Strip prefix and mentions
+    // Strip optional !ai prefix and mentions, leaving natural text
     const userMessage = message.content.replace(/^!ai\s+/i, '').replace(/<@!?\d+>/g, '').trim();
     if (!userMessage) return;
 
@@ -239,6 +238,27 @@ async function checkAndPostAlerts() {
   }
 }
 
+async function postInstantAlert(alert) {
+  try {
+    const channel = client?.channels?.cache?.get(env.ALERT_CHANNEL_ID);
+    if (!channel) return;
+
+    if (lastAlertIds.has(alert.id)) return;
+
+    const friendlyMessage = await generateAlertMessage(alert);
+    const embed = new EmbedBuilder()
+      .setTitle(alert.severity === 'critical' ? '🚨 Critical Alert' : '⚠️ Warning')
+      .setDescription(friendlyMessage)
+      .setColor(alert.severity === 'critical' ? 0xff0000 : 0xffaa00)
+      .setTimestamp();
+
+    await channel.send({ embeds: [embed] });
+    lastAlertIds.add(alert.id);
+  } catch (err) {
+    console.error('Failed to post instant alert:', err.message);
+  }
+}
+
 /**
  * Stop the Discord bot.
  */
@@ -248,4 +268,4 @@ function stopBot() {
   console.log('🤖 Discord bot stopped');
 }
 
-module.exports = { startBot, stopBot };
+module.exports = { startBot, stopBot, postInstantAlert };

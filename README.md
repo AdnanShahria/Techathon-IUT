@@ -21,9 +21,11 @@ Build a **Smart Office Monitoring System** that tracks lights & fans across 3 ro
 ## ✨ Features
 - **📊 Real-time Dashboard** — Live device states, power meters, and alerts via WebSocket
 - **🤖 Discord Bot** — `!status`, `!room`, `!usage` commands with AI-powered conversational responses
-- **⚡ Power Analytics** — Total & per-room consumption with daily kWh estimates
+- **🧠 Autonomous AI Control** — Talk to the Discord bot naturally (`!ai` or `@mention`) to issue commands (e.g., "turn off lights in the drawing room") powered by Groq Tool Calling!
+- **⚡ Power Analytics** — Total & per-room consumption with dynamically ticking live session costs
 - **🚨 Smart Alerts** — After-hours detection, high consumption warnings
-- **🗺️ Floor Plan** — Interactive SVG top-view with glowing lights & spinning fans
+- **🔥 Sensor Simulation UI** — Live UI to test critical Fire/Smoke and CO2 sensors, triggering instant WebSockets and Discord alerts.
+- **🗺️ Floor Plan** — Interactive SVG architectural top-view with glowing lights & realistic spinning fans
 - **🔐 Secure** — All API keys proxied through backend, never exposed to frontend
 
 ---

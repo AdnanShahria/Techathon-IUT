@@ -41,7 +41,7 @@ export default function App() {
         {/* Row 1: Room device cards */}
         <DevicePanel devices={devices} powerByRoom={powerByRoom} sensors={sensors} />
 
-        {/* Row 2: Power/Alerts/History split */}
+        {/* Row 2: Power/Alerts split */}
         <div className="dashboard-row-split" style={{ gridColumn: '1 / -1', alignItems: 'stretch' }}>
           <PowerMeter
             totalPower={totalPower}
@@ -49,18 +49,21 @@ export default function App() {
             estimatedDailyKWh={estimatedDailyKWh}
             devices={devices}
           />
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <AlertsPanel alerts={alerts} />
-            <HistoryPanel lastUpdate={lastUpdate} />
-          </div>
+          <AlertsPanel alerts={alerts} />
         </div>
 
-        {/* Row 3: Floor plan (BONUS) */}
+        {/* Row 3: History Panel (Full Width) */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <HistoryPanel lastUpdate={lastUpdate} />
+        </div>
+
+        {/* Row 4: Floor plan (BONUS) */}
         <OfficeFloorPlan devices={devices} />
 
-        {/* Row 4: Sensor Testing Panel */}
-        <SensorActivityTest />
+        {/* Row 5: Sensor Testing Panel (Full Width) */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <SensorActivityTest />
+        </div>
       </div>
     </div>
   );

@@ -112,15 +112,29 @@ async function generateInteractiveChat(userMessage) {
 
   try {
     const devices = await db.getAllDevices();
+    const usage = await db.getUsageSummary();
+    const sensors = await db.getLatestSensorData(); // Add sensor context
+    const { getAlerts } = require('../routes/alerts');
+    const alerts = await getAlerts();
+
     let deviceContext = "Current Devices (ID: Name - Room - Status):\n";
     for (const d of devices) {
       deviceContext += `${d.id}: ${d.name} - ${d.room} - ${d.status.toUpperCase()}\n`;
     }
+    
+    let usageContext = `\nCurrent Power Usage:\nTotal Power: ${usage.totalPowerWatts}W\nEstimated Daily: ${usage.estimatedDailyKWh} kWh\nDevices ON: ${usage.devicesOn}/${usage.deviceCount}\n`;
+    
+    let sensorContext = `\nLive Sensors:\n`;
+    for (const [room, data] of Object.entries(sensors)) {
+      sensorContext += `- ${room}: Fire/Smoke=${data.fire} (Danger >= 1024), CO2=${data.co2}ppm (Danger >= 800)\n`;
+    }
+
+    let alertsContext = alerts.length > 0 ? `\nActive Alerts:\n${alerts.map(a => `- ${a.message}`).join('\n')}\n` : '\nNo Active Alerts.\n';
 
     const messages = [
       { 
         role: 'system', 
-        content: SYSTEM_PROMPT + '\n\n' + deviceContext + '\n\nYou have access to tools to control devices. Use them if the user asks you to turn something on or off.' 
+        content: SYSTEM_PROMPT + '\n\n' + deviceContext + usageContext + sensorContext + alertsContext + '\n\nYou have access to tools to control devices. Use them if the user asks you to turn something on or off. If the user asks for status or usage, use the provided context to answer conversationally.' 
       },
       { role: 'user', content: userMessage }
     ];
