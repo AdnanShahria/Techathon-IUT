@@ -6,6 +6,7 @@
 
 const Groq = require('groq-sdk');
 const { env } = require('../envProxy');
+const db = require('../db');
 
 let groqClient = null;
 
@@ -102,4 +103,96 @@ async function generateAlertMessage(alert) {
   }
 }
 
-module.exports = { generateResponse, generateAlertMessage };
+/**
+ * Interactive chat with function calling for device control
+ */
+async function generateInteractiveChat(userMessage) {
+  const client = getGroqClient();
+  if (!client) return "❌ Groq API is not configured.";
+
+  try {
+    const devices = await db.getAllDevices();
+    let deviceContext = "Current Devices (ID: Name - Room - Status):\n";
+    for (const d of devices) {
+      deviceContext += `${d.id}: ${d.name} - ${d.room} - ${d.status.toUpperCase()}\n`;
+    }
+
+    const messages = [
+      { 
+        role: 'system', 
+        content: SYSTEM_PROMPT + '\n\n' + deviceContext + '\n\nYou have access to tools to control devices. Use them if the user asks you to turn something on or off.' 
+      },
+      { role: 'user', content: userMessage }
+    ];
+
+    const tools = [
+      {
+        type: 'function',
+        function: {
+          name: 'set_device_status',
+          description: 'Turn a specific device on or off.',
+          parameters: {
+            type: 'object',
+            properties: {
+              device_id: { type: 'integer', description: 'The ID of the device' },
+              status: { type: 'string', enum: ['on', 'off'], description: 'The new status' }
+            },
+            required: ['device_id', 'status']
+          }
+        }
+      }
+    ];
+
+    const response = await client.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages,
+      tools,
+      tool_choice: 'auto',
+      max_tokens: 300,
+    });
+
+    const responseMessage = response.choices[0].message;
+
+    if (responseMessage.tool_calls) {
+      for (const toolCall of responseMessage.tool_calls) {
+        if (toolCall.function.name === 'set_device_status') {
+          const args = JSON.parse(toolCall.function.arguments);
+          const updated = await db.setDeviceStatus(args.device_id, args.status);
+          
+          if (updated) {
+            messages.push(responseMessage);
+            messages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              name: 'set_device_status',
+              content: `Success: Device ${updated.name} in ${updated.room} is now ${updated.status}.`
+            });
+          } else {
+            messages.push(responseMessage);
+            messages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              name: 'set_device_status',
+              content: `Error: Device ID ${args.device_id} not found.`
+            });
+          }
+        }
+      }
+      
+      // Get final response after tool call
+      const finalResponse = await client.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        max_tokens: 300,
+      });
+      return finalResponse.choices[0].message.content;
+    }
+
+    return responseMessage.content;
+  } catch (err) {
+    console.error('Groq LLM interactive error:', err.message);
+    return "❌ Sorry, my AI brain had a hiccup processing that.";
+  }
+}
+
+module.exports = { generateResponse, generateAlertMessage, generateInteractiveChat };

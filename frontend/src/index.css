@@ -3,21 +3,21 @@
 /* a vibrant color palette.                                     */
 /* ───────────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
 
 /* ─── CSS Custom Properties ─────────────────────────────────── */
 :root {
-  /* Background */
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.7);
-  --bg-glass: rgba(255, 255, 255, 0.03);
-  --bg-glass-hover: rgba(255, 255, 255, 0.06);
+  /* Background (OLED Dark Mode) */
+  --bg-primary: #000000;
+  --bg-secondary: #0F172A;
+  --bg-card: rgba(15, 23, 42, 0.7);
+  --bg-glass: rgba(255, 255, 255, 0.04);
+  --bg-glass-hover: rgba(255, 255, 255, 0.08);
 
-  /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  /* Text (High Contrast 4.5:1 min) */
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
 
   /* Accent colors */
   --accent-blue: #3b82f6;
@@ -33,19 +33,19 @@
   --gradient-warm: linear-gradient(135deg, #f59e0b, #f97316);
   --gradient-danger: linear-gradient(135deg, #f43f5e, #e11d48);
   --gradient-success: linear-gradient(135deg, #10b981, #06b6d4);
-  --gradient-bg: linear-gradient(180deg, #0a0e1a 0%, #111827 100%);
+  --gradient-bg: linear-gradient(180deg, #000000 0%, #0F172A 100%);
 
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(59, 130, 246, 0.3);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(59, 130, 246, 0.4);
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.15);
-  --shadow-glow-amber: 0 0 30px rgba(245, 158, 11, 0.4);
-  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.15);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
+  --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.25);
+  --shadow-glow-amber: 0 0 30px rgba(245, 158, 11, 0.5);
+  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.25);
 
   /* Spacing */
   --radius-sm: 8px;
@@ -54,16 +54,17 @@
   --radius-xl: 24px;
 
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: 'Fira Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Fira Code', monospace;
 
   /* Light glow */
-  --light-on-glow: 0 0 20px 8px rgba(255, 200, 50, 0.5), 0 0 40px 16px rgba(255, 200, 50, 0.2);
+  --light-on-glow: 0 0 20px 8px rgba(255, 200, 50, 0.4), 0 0 40px 16px rgba(255, 200, 50, 0.15);
   --light-on-color: #fbbf24;
-  --light-off-color: #374151;
+  --light-off-color: #334155;
 
   /* Fan */
   --fan-on-color: #06b6d4;
-  --fan-off-color: #374151;
+  --fan-off-color: #334155;
 }
 
 /* ─── Reset & Base ──────────────────────────────────────────── */
@@ -905,4 +906,25 @@ body {
 
 .toggle-switch.on .toggle-thumb {
   transform: translateX(14px);
+}
+
+/* ─── UI Pro Max Overrides ────────────────────────────────────── */
+.power-total-value,
+.power-room-value,
+.power-stat-value,
+.header-time,
+.sensor-value,
+.history-time {
+  font-family: var(--font-mono);
+}
+
+/* Ensure cursor-pointer on all interactive elements */
+.room-card,
+.device-item,
+.power-card,
+.alerts-card,
+.sensor-card,
+.history-item,
+.toggle-switch {
+  cursor: pointer;
 }

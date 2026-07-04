@@ -6,6 +6,7 @@ import AlertsPanel from './components/AlertsPanel';
 import SensorsPanel from './components/SensorsPanel';
 import HistoryPanel from './components/HistoryPanel';
 import OfficeFloorPlan from './components/OfficeFloorPlan';
+import SensorActivityTest from './components/SensorActivityTest';
 import './index.css';
 
 /**
@@ -57,6 +58,9 @@ export default function App() {
 
         {/* Row 3: Floor plan (BONUS) */}
         <OfficeFloorPlan devices={devices} />
+
+        {/* Row 4: Sensor Testing Panel */}
+        <SensorActivityTest />
       </div>
     </div>
   );

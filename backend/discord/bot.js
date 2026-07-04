@@ -10,7 +10,7 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { env } = require('../envProxy');
 const db = require('../db');
-const { generateResponse, generateAlertMessage } = require('./llm');
+const { generateResponse, generateAlertMessage, generateInteractiveChat } = require('./llm');
 const { getAlerts } = require('../routes/alerts');
 
 let client = null;
@@ -43,6 +43,10 @@ async function startBot() {
     if (content.startsWith('!room ')) return handleRoom(message, content.slice(6).trim());
     if (content === '!usage') return handleUsage(message);
     if (content === '!help') return handleHelp(message);
+
+    if (content.startsWith('!ai ') || message.mentions.has(client.user)) {
+      return handleAiChat(message);
+    }
   });
 
   client.on('clientReady', () => {
@@ -180,6 +184,28 @@ async function handleHelp(message) {
     .setFooter({ text: 'Powered by Groq AI ⚡' });
 
   message.reply({ embeds: [embed] });
+}
+
+// ─── AI Chat / Device Control ───────────────────────────────
+async function handleAiChat(message) {
+  try {
+    // Strip prefix and mentions
+    const userMessage = message.content.replace(/^!ai\s+/i, '').replace(/<@!?\d+>/g, '').trim();
+    if (!userMessage) return;
+
+    // Send to LLM with full context
+    const reply = await generateInteractiveChat(userMessage);
+
+    const embed = new EmbedBuilder()
+      .setColor(0x00ffaa)
+      .setDescription(reply)
+      .setFooter({ text: 'OfficeBot AI Control' });
+      
+    message.reply({ embeds: [embed] });
+  } catch (err) {
+    console.error('AI chat error:', err);
+    message.reply('❌ The AI brain had a hiccup processing that command.');
+  }
 }
 
 // ─── Proactive Alerts (BONUS) ───────────────────────────────
