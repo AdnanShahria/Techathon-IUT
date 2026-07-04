@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🏆 Smart Office Monitor
 
@@ -1058,4 +1058,3 @@ MIT — see [LICENSE](LICENSE) for details.
 All Rights Reserved by [IUT Robotic Society](https://iut.ac.bd) and [Orbit SaaS](https://orbitsaas.cloud)
 
 </div>
-]]>
