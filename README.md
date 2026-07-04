@@ -19,6 +19,7 @@
 
 ## 📑 Table of Contents
 
+- [**For Judges — Quick Start**](#-for-judges--quick-start)
 - [Problem Statement](#-problem-statement)
 - [Why 18 Devices? Our Smart Approach](#-why-18-devices-our-smart-approach)
 - [Features](#-features)
@@ -44,6 +45,54 @@
 - [NPM Scripts Reference](#-npm-scripts-reference)
 - [Dummy Data](#-dummy-data-as-required)
 - [License](#-license)
+
+---
+
+## 🎯 For Judges — Quick Start
+
+> [!IMPORTANT]
+> **Everything you need to test the bot and dashboard in under 60 seconds.**
+
+### 1. 🌐 Live Dashboard
+
+👉 **[Open the Live Dashboard](https://smart-office-monitor.onrender.com)** — no login required. Toggle devices, trigger sensor alerts, and watch real-time updates.
+
+### 2. 🤖 Test the Discord Bot
+
+The bot is **already running** and connected to our live backend. To use it:
+
+| Step | Action |
+|------|--------|
+| **Join our server** | 👉 [**Click to Join Discord Server**](https://discord.gg/8ggJSABUk) |
+| **Go to `#bot-commands`** | Type any command below |
+
+> If you prefer to invite the bot to **your own server** instead:
+>
+> 👉 [**Invite Bot to Your Server**](https://discord.com/oauth2/authorize?client_id=1522601798911922196&permissions=274877910016&scope=bot)
+>
+> Required permissions: Send Messages, View Channels, Read Message History
+
+### 3. 🎮 Bot Commands to Try
+
+| Command | What it Does |
+|---------|-------------|
+| `!status` | AI-powered overview of all 3 rooms and 18 devices |
+| `!room drawing` | Detailed breakdown of the Drawing Room |
+| `!room work1` | Detailed breakdown of Work Room 1 |
+| `!room work2` | Detailed breakdown of Work Room 2 |
+| `!usage` | Live power consumption & daily cost estimate |
+| `!help` | List all commands |
+| *"Turn off all lights"* | Natural language AI chat — the bot understands plain English! |
+
+### 4. 🔥 Test Sensor Alerts (Fire / CO₂)
+
+1. Open the **[Live Dashboard](https://smart-office-monitor.onrender.com)**
+2. Scroll to the **"Sensor Activity Testing"** panel
+3. Set **Fire/Smoke slider** ≥ 1024 → Click **TEST**
+4. Watch the **🚨 Critical Alert** appear on both the dashboard AND Discord simultaneously!
+
+> [!NOTE]
+> The server has a **built-in keep-alive** mechanism — it will never go to sleep, even on Render's free tier. The bot is online 24/7.
 
 ---
 
@@ -996,10 +1045,8 @@ services:
       # ... (secrets configured in Render dashboard)
 ```
 
-> [!WARNING]
-> Free instances on Render spin down after 15 minutes of inactivity. This means your Discord bot might go offline. To keep it awake 24/7:
-> - **Option A:** Upgrade to the $7/month Starter tier on Render
-> - **Option B:** Use a free cron job service (like [cron-job.org](https://cron-job.org)) to ping your `/api/health` endpoint every 10 minutes
+> [!TIP]
+> **Sleep issue solved!** The server includes a built-in keep-alive self-ping that hits `/api/health` every 10 minutes in production. This prevents Render's free tier from spinning down after 15 minutes of inactivity. The Discord bot stays online 24/7 with zero configuration.
 
 ---
 

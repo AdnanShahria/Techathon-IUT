@@ -103,6 +103,30 @@ io.on('connection', async (socket) => {
   });
 });
 
+// ─── Keep-Alive Self-Ping (Render Free Tier) ───────────────
+// Render's free tier spins down after 15 min of inactivity.
+// This self-ping hits /api/health every 10 min to keep it awake.
+let keepAliveInterval = null;
+
+function startKeepAlive(port) {
+  if (env.NODE_ENV !== 'production') return;
+
+  const KEEP_ALIVE_MS = 10 * 60 * 1000; // 10 minutes
+  const url = `http://localhost:${port}/api/health`;
+
+  keepAliveInterval = setInterval(async () => {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      console.log(`💓 Keep-alive ping OK — uptime: ${Math.round(data.uptime)}s`);
+    } catch (err) {
+      console.error('💔 Keep-alive ping failed:', err.message);
+    }
+  }, KEEP_ALIVE_MS);
+
+  console.log(`💓 Keep-alive enabled — pinging /api/health every 10 min`);
+}
+
 // ─── Start Everything ──────────────────────────────────────
 async function start() {
   try {
@@ -123,6 +147,9 @@ async function start() {
     // 4. Start Discord bot
     await startBot();
 
+    // 5. Start keep-alive self-ping (prevents Render free tier sleep)
+    startKeepAlive(PORT);
+
   } catch (err) {
     console.error('❌ Startup failed:', err);
     process.exit(1);
@@ -132,6 +159,7 @@ async function start() {
 // ─── Graceful Shutdown ─────────────────────────────────────
 process.on('SIGINT', () => {
   console.log('\n🛑 Shutting down...');
+  if (keepAliveInterval) clearInterval(keepAliveInterval);
   stopSimulator();
   stopBot();
   server.close(() => {
