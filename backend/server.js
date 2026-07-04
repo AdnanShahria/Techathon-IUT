@@ -32,6 +32,7 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
+app.set('io', io);
 
 // ─── Middleware ─────────────────────────────────────────────
 app.use(cors({
@@ -44,6 +45,7 @@ app.use('/api/devices', require('./routes/devices'));
 app.use('/api/usage', require('./routes/usage'));
 app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/proxy', require('./routes/proxy'));
+app.use('/api/sensors', require('./routes/sensors'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -77,6 +79,7 @@ io.on('connection', async (socket) => {
     const usage = await db.getUsageSummary();
     const { getAlerts } = require('./routes/alerts');
     const alerts = await getAlerts();
+    const sensors = await db.getLatestSensorData();
 
     socket.emit('initialState', {
       devices,
@@ -85,6 +88,7 @@ io.on('connection', async (socket) => {
       estimatedDailyKWh: usage.estimatedDailyKWh,
       devicesOn: usage.devicesOn,
       alerts,
+      sensors,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

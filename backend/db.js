@@ -67,8 +67,8 @@ async function initDatabase() {
 async function seedDevices(client) {
   const rooms = ['Drawing Room', 'Work Room 1', 'Work Room 2'];
   const deviceTypes = [
-    { type: 'fan', count: 3, powerWatt: 60 },
-    { type: 'light', count: 3, powerWatt: 15 },
+    { type: 'fan', count: 2, powerWatt: 240 },
+    { type: 'light', count: 3, powerWatt: 30 },
   ];
 
   let id = 1;
@@ -89,7 +89,7 @@ async function seedDevices(client) {
     }
   }
 
-  console.log('🌱 Seeded 18 devices across 3 rooms');
+  console.log('🌱 Seeded 15 devices across 3 rooms');
 }
 
 /**
@@ -220,13 +220,73 @@ async function getUsageHistory() {
   return result.rows;
 }
 
+/**
+ * Log sensor data.
+ */
+async function logSensorData(room, fire, co2) {
+  const client = getClient();
+  const now = new Date().toISOString();
+  await client.execute({
+    sql: 'INSERT INTO sensors_history (timestamp, room, fire, co2) VALUES (?, ?, ?, ?)',
+    args: [now, room, fire, co2],
+  });
+}
+
+/**
+ * Get latest sensor data per room.
+ */
+async function getLatestSensorData() {
+  const client = getClient();
+  const result = await client.execute(`
+    SELECT a.room, a.fire, a.co2 
+    FROM sensors_history a
+    INNER JOIN (
+      SELECT room, MAX(timestamp) as max_ts 
+      FROM sensors_history 
+      GROUP BY room
+    ) b ON a.room = b.room AND a.timestamp = b.max_ts
+  `);
+  
+  // Convert to object mapping room -> data
+  const data = {};
+  for (const row of result.rows) {
+    data[row.room] = { fire: row.fire, co2: row.co2 };
+  }
+  return data;
+}
+
+/**
+ * Set a device's explicit status (on/off).
+ */
+async function setDeviceStatus(deviceId, status) {
+  const client = getClient();
+  const now = new Date().toISOString();
+  const current = await client.execute({
+    sql: 'SELECT * FROM devices WHERE id = ?',
+    args: [deviceId],
+  });
+
+  if (current.rows.length === 0) return null;
+  const device = current.rows[0];
+
+  await client.execute({
+    sql: 'UPDATE devices SET status = ?, last_changed = ? WHERE id = ?',
+    args: [status, now, deviceId],
+  });
+
+  return { ...device, status, last_changed: now };
+}
+
 module.exports = {
   getClient,
   initDatabase,
   getAllDevices,
   getDevicesByRoom,
   toggleDevice,
+  setDeviceStatus,
   getUsageSummary,
   logUsageHistory,
   getUsageHistory,
+  logSensorData,
+  getLatestSensorData,
 };

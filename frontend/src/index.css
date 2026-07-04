@@ -756,3 +756,153 @@ body {
     font-size: 2.4rem;
   }
 }
+
+/* ─── Custom Styles for Sensors, History, Toggle Switch ─── */
+.dashboard-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-row-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sensors */
+.sensors-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.sensor-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.sensor-card.danger {
+  border-color: rgba(255, 69, 58, 0.5);
+  background: rgba(255, 69, 58, 0.05);
+}
+
+.sensor-icon-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  padding: 1rem;
+  display: flex;
+}
+
+.text-red { color: #ff453a; }
+.text-orange { color: #ff9f0a; }
+.text-green { color: #32d74b; }
+
+.sensor-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sensor-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.sensor-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sensor-unit {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.sensor-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.sensor-card.safe .sensor-status { color: #32d74b; }
+.sensor-card.danger .sensor-status { color: #ff453a; }
+
+/* History */
+.history-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  height: 150px;
+  overflow-y: auto;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-time {
+  color: var(--text-muted);
+}
+
+.history-details {
+  color: var(--text-primary);
+}
+
+.history-empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  width: 32px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  margin-top: 8px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.toggle-switch.on {
+  background: var(--accent-cyan);
+}
+
+.toggle-thumb {
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.toggle-switch.on .toggle-thumb {
+  transform: translateX(14px);
+}

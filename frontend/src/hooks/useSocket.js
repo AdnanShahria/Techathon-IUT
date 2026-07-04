@@ -17,6 +17,7 @@ export function useSocket() {
     estimatedDailyKWh: 0,
     devicesOn: 0,
     alerts: [],
+    sensors: {},
     connected: false,
     lastUpdate: null,
   });
@@ -63,6 +64,7 @@ export function useSocket() {
         powerByRoom: update.powerByRoom,
         estimatedDailyKWh: update.estimatedDailyKWh,
         alerts: update.alerts,
+        ...(update.sensors && { sensors: update.sensors }),
       });
     });
 

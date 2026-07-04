@@ -3,6 +3,8 @@ import Header from './components/Header';
 import DevicePanel from './components/DevicePanel';
 import PowerMeter from './components/PowerMeter';
 import AlertsPanel from './components/AlertsPanel';
+import SensorsPanel from './components/SensorsPanel';
+import HistoryPanel from './components/HistoryPanel';
 import OfficeFloorPlan from './components/OfficeFloorPlan';
 import './index.css';
 
@@ -19,6 +21,8 @@ export default function App() {
     powerByRoom,
     estimatedDailyKWh,
     alerts,
+    sensors,
+    lastUpdate,
     connected,
   } = useSocket();
 
@@ -34,17 +38,22 @@ export default function App() {
 
       <div className="dashboard-grid">
         {/* Row 1: Room device cards */}
-        <DevicePanel devices={devices} powerByRoom={powerByRoom} />
+        <DevicePanel devices={devices} powerByRoom={powerByRoom} sensors={sensors} />
 
-        {/* Row 2: Power meter + Alerts side by side */}
-        <PowerMeter
-          totalPower={totalPower}
-          powerByRoom={powerByRoom}
-          estimatedDailyKWh={estimatedDailyKWh}
-          devices={devices}
-        />
+        {/* Row 2: Power/Alerts/History split */}
+        <div className="dashboard-row-split" style={{ gridColumn: '1 / -1', alignItems: 'stretch' }}>
+          <PowerMeter
+            totalPower={totalPower}
+            powerByRoom={powerByRoom}
+            estimatedDailyKWh={estimatedDailyKWh}
+            devices={devices}
+          />
 
-        <AlertsPanel alerts={alerts} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <AlertsPanel alerts={alerts} />
+            <HistoryPanel lastUpdate={lastUpdate} />
+          </div>
+        </div>
 
         {/* Row 3: Floor plan (BONUS) */}
         <OfficeFloorPlan devices={devices} />

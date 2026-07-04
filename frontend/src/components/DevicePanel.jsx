@@ -5,7 +5,7 @@ import RoomCard from './RoomCard';
  * Device panel showing all 3 rooms with their devices.
  * Groups devices by room and calculates per-room power.
  */
-export default function DevicePanel({ devices, powerByRoom }) {
+export default function DevicePanel({ devices, powerByRoom, sensors }) {
   // Group devices by room
   const rooms = {};
   for (const device of devices) {
@@ -31,6 +31,7 @@ export default function DevicePanel({ devices, powerByRoom }) {
             roomName={roomName}
             devices={rooms[roomName] || []}
             power={powerByRoom?.[roomName] || 0}
+            sensors={sensors?.[roomName] || { fire: 0, co2: 0 }}
           />
         ))}
       </div>

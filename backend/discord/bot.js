@@ -45,7 +45,7 @@ async function startBot() {
     if (content === '!help') return handleHelp(message);
   });
 
-  client.on('ready', () => {
+  client.on('clientReady', () => {
     console.log(`🤖 Discord bot online as ${client.user.tag}`);
 
     // Start proactive alert checker (every 5 minutes)

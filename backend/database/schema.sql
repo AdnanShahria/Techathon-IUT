@@ -21,3 +21,13 @@ CREATE TABLE IF NOT EXISTS usage_history (
   work_room_2_watts INTEGER NOT NULL,
   devices_on INTEGER NOT NULL
 );
+
+-- ─── sensors_history table ───────────────────────────────────
+-- Keeps track of Fire and CO2 sensor readings.
+CREATE TABLE IF NOT EXISTS sensors_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  timestamp TEXT NOT NULL,
+  room TEXT NOT NULL,
+  fire INTEGER NOT NULL,
+  co2 INTEGER NOT NULL
+);

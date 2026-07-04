@@ -54,14 +54,10 @@ function startSimulator(io) {
     } catch (err) {
       console.error('Simulator error:', err.message);
     }
-
-    // Schedule next toggle with random 5-10s interval
-    const delay = Math.floor(Math.random() * 5000) + 5000;
-    simulatorInterval = setTimeout(tick, delay);
   }
 
-  // First tick after 3 seconds (let server fully start)
-  simulatorInterval = setTimeout(tick, 3000);
+  // Simulator disabled: Using real hardware (ESP32) data now.
+  // simulatorInterval = setTimeout(tick, 3000);
 }
 
 /**

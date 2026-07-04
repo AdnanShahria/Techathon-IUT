@@ -62,6 +62,15 @@ export default function OfficeFloorPlan({ devices }) {
     <circle cx={cx} cy={cy} r={4} fill="rgba(51,65,85,0.6)" stroke="rgba(71,85,105,0.3)" strokeWidth="0.5" />
   );
 
+  /** Render a sensor */
+  const renderSensor = (cx, cy) => (
+    <g>
+      <rect x={cx - 8} y={cy - 8} width={16} height={16} rx={4} fill="rgba(255,255,255,0.1)" stroke="#cbd5e1" strokeWidth="1" />
+      <circle cx={cx} cy={cy} r={2} fill="#ef4444" />
+      <text x={cx} y={cy + 15} textAnchor="middle" fill="#94a3b8" fontSize="5" fontFamily="Inter, sans-serif">SENSOR</text>
+    </g>
+  );
+
   /** Render all 6 devices for a room at given positions */
   const renderRoomDevices = (room, fanPositions, lightPositions) => (
     <>
@@ -101,11 +110,14 @@ export default function OfficeFloorPlan({ devices }) {
             {[55, 85].map((x, i) => <g key={`dc1-${i}`}>{renderChair(x, 122)}{renderChair(x, 215)}</g>)}
             {[180, 210].map((x, i) => <g key={`dc2-${i}`}>{renderChair(x, 142)}{renderChair(x, 198)}</g>)}
 
-            {/* 3 Fans */}
+            {/* 2 Fans */}
             {renderRoomDevices(dr,
-              [[55, 60], [145, 60], [230, 60]],
+              [[90, 60], [200, 60]],
               [[55, 260], [145, 260], [230, 260]]
             )}
+
+            {/* Sensor */}
+            {renderSensor(145, 140)}
 
             <line x1="120" y1="305" x2="165" y2="305" stroke="var(--accent-blue)" strokeWidth="3" strokeLinecap="round" />
             <text x="142" y="318" textAnchor="middle" fill="#475569" fontSize="7" fontFamily="Inter, sans-serif">DOOR</text>
@@ -124,11 +136,14 @@ export default function OfficeFloorPlan({ devices }) {
             {[365, 395].map((x, i) => <g key={`w1c1-${i}`}>{renderChair(x, 102)}{renderChair(x, 208)}</g>)}
             {[485, 515].map((x, i) => <g key={`w1c2-${i}`}>{renderChair(x, 102)}{renderChair(x, 208)}</g>)}
 
-            {/* 3 Fans + 3 Lights */}
+            {/* 2 Fans + 3 Lights */}
             {renderRoomDevices(w1,
-              [[355, 58], [445, 58], [530, 58]],
+              [[390, 58], [500, 58]],
               [[355, 258], [445, 258], [530, 258]]
             )}
+
+            {/* Sensor */}
+            {renderSensor(445, 140)}
 
             <line x1="420" y1="305" x2="465" y2="305" stroke="var(--accent-emerald)" strokeWidth="3" strokeLinecap="round" />
             <text x="442" y="318" textAnchor="middle" fill="#475569" fontSize="7" fontFamily="Inter, sans-serif">DOOR</text>
@@ -147,11 +162,14 @@ export default function OfficeFloorPlan({ devices }) {
             {[665, 695].map((x, i) => <g key={`w2c1-${i}`}>{renderChair(x, 102)}{renderChair(x, 208)}</g>)}
             {[785, 815].map((x, i) => <g key={`w2c2-${i}`}>{renderChair(x, 102)}{renderChair(x, 208)}</g>)}
 
-            {/* 3 Fans + 3 Lights */}
+            {/* 2 Fans + 3 Lights */}
             {renderRoomDevices(w2,
-              [[655, 58], [745, 58], [830, 58]],
+              [[690, 58], [800, 58]],
               [[655, 258], [745, 258], [830, 258]]
             )}
+
+            {/* Sensor */}
+            {renderSensor(745, 140)}
 
             <line x1="720" y1="305" x2="765" y2="305" stroke="var(--accent-orange)" strokeWidth="3" strokeLinecap="round" />
             <text x="742" y="318" textAnchor="middle" fill="#475569" fontSize="7" fontFamily="Inter, sans-serif">DOOR</text>

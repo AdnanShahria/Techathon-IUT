@@ -61,6 +61,13 @@ export default function PowerMeter({ totalPower, powerByRoom, estimatedDailyKWh,
             <div className="power-stat-label">Est. Daily kWh</div>
           </div>
           <div className="power-stat">
+            <div className="power-stat-value" style={{ color: 'var(--accent-green)' }}>
+              <Zap size={16} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+              ${((estimatedDailyKWh || 0) * 0.12).toFixed(2)}
+            </div>
+            <div className="power-stat-label">Last 24h Bill (est)</div>
+          </div>
+          <div className="power-stat">
             <div className="power-stat-value" style={{ color: 'var(--accent-cyan)' }}>
               <Power size={16} style={{ marginRight: 4, verticalAlign: 'middle' }} />
               {devicesOn}/{totalDevices}

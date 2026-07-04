@@ -54,4 +54,39 @@ router.get('/:room', async (req, res) => {
   }
 });
 
+// Toggle device
+router.post('/:id/toggle', async (req, res) => {
+  try {
+    const updated = await db.toggleDevice(parseInt(req.params.id));
+    if (!updated) {
+      return res.status(404).json({ error: 'Device not found' });
+    }
+
+    await db.logUsageHistory(); // Log the new power state to DB
+
+    const io = req.app.get('io');
+    if (io) {
+      const allDevices = await db.getAllDevices();
+      const usage = await db.getUsageSummary();
+      const { getAlerts } = require('./alerts');
+      const alerts = await getAlerts();
+
+      io.emit('deviceUpdate', {
+        device: updated,
+        allDevices,
+        totalPower: usage.totalPowerWatts,
+        powerByRoom: usage.powerByRoom,
+        estimatedDailyKWh: usage.estimatedDailyKWh,
+        alerts,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    console.error('POST /api/devices/:id/toggle error:', err.message);
+    res.status(500).json({ error: 'Failed to toggle device' });
+  }
+});
+
 module.exports = router;
